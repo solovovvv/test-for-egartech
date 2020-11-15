@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<table>
+    <tr><th>ID</th><th>Дата</th><th>Имя</th><th>Стоимость</th></tr>
+    <tr><td>1</td><td>01.01.2019</td><td>Газпром</td><td>2000</td></tr>
+    <tr><td>2</td><td>01.01.2019</td><td>Автоваз</td><td>2500</td></tr>
+    <tr><td>3</td><td>05.01.2019</td><td>Сбербанк</td><td>10000</td></tr>
+    <tr><td>4</td><td>10.01.2019</td><td>Газпром</td><td>2500</td></tr>
+    <tr><td>5</td><td>07.10.2019</td><td>Автоваз</td><td>2100</td></tr>
+    <tr><td>6</td><td>10.10.2019</td><td>Газпром</td><td></td></tr>
+</table>
+<table id="tbl">
+    <tr><th>ID</th><th>Дата</th><th>Имя</th><th>Стоимость</th></tr>
+    <tr><td>1</td><td><label><input type="date" value="2019-01-01"></label></td><td><label><input type="text" value="Газпром"></label></td><td><label><input type="number" value="2000"></label></td></tr>
+    <tr><td>2</td><td><label><input type="date" value="2019-01-01"></label></td><td><label><input type="text" value="Автоваз"></label></td><td><label><input type="number" value="2500"></label></td></tr>
+    <tr><td>3</td><td><label><input type="date" value="2019-01-05"></label></td><td><label><input type="text" value="Сбербанк"></label></td><td><label><input type="number" value="10000"></label></td></tr>
+    <tr><td>4</td><td><label><input type="date" value="2019-01-10"></label></td><td><label><input type="text" value="Газпром"></label></td><td><label><input type="number" value="2500"></label></td></tr>
+    <tr><td>5</td><td><label><input type="date" value="2019-10-07"></label></td><td><label><input type="text" value="Автоваз"></label></td><td><label><input type="number" value="2100"></label></td></tr>
+    <tr><td>6</td><td><label><input type="date" value="2019-10-10"></label></td><td><label><input type="text" value="Газпром"></label></td><td><label><input type="number" value=""></label></td></tr>
+</table>
+<div style="width: 600px; height: 400px">
+    <canvas id="chart"></canvas>
+</div>
+<script src="Chart.min.js"></script>
+<script>
+    'use strict';
+    var tbl = document.getElementById('tbl');
+    var ctx = document.getElementById('chart');
+
+
+    // var tableArray = fillArrayFromTable(tbl);
+    readTable().forEach(o => console.log(o.placementDate + "\t" + o.name + "\t" + o.cost));
+    var labels = fillDatesForLabels();
+
+    function readTable() {
+        var o = [{}];
+        for (var i = 1; i < tbl.rows.length; i++) {
+            o[i] = {
+                placementDate: tbl.rows[i].cells[1].getElementsByTagName('label')[0].getElementsByTagName('input')[0].value,
+                name: tbl.rows[i].cells[2].getElementsByTagName('label')[0].getElementsByTagName('input')[0].value,
+                cost: tbl.rows[i].cells[3].getElementsByTagName('label')[0].getElementsByTagName('input')[0].value
+            };
+        }
+        return o;
+    }
+
+    // var ar=[{}];
+    // ar[0] = {name: "Hello", data: [1, 2, 3]};
+    // ar[1] = {name: "Worls", data: [4, 5, 6]};
+    // ar.forEach(s => console.log(s.name + s.data));
+    // console.log(ar[0].name + ar[0].data);
+    // ar[0].data.push(111);
+    // console.log(ar[0].data);
+
+    createDataForChart();
+    function createDataForChart() {
+        var o = [{}];
+        var namesSet = fillNames();
+        console.log(namesSet);
+        var tableData = readTable();
+        console.log(tableData);
+        var names = [];
+        namesSet.forEach(s => console.log(s));
+        namesSet.forEach(s => names.push(s));   //fill array
+        namesSet.forEach(s => o.push({
+            name: s,
+            data: [1,2,3]
+        }));
+        console.log(o);
+        // o.forEach(s => console.log(s.name) + " " + s.data);
+        // var ar = o[2].data;
+        // console.log(o.length);
+        // for (var i = 0; i < tableData.length; i++) {
+        //     for (var j = 0; j < names.length; j++) {
+        //         if (tableData[i].name === o[j].name) {
+        //             o[j].data = tableData[i].cost;
+        //         }
+        //     }
+        // }
+        //o.forEach(s => console.log(s.name + " " + s.data));
+        return o;
+    }
+
+    //получить уникальные имена
+    function fillNames() {
+        var o = readTable();
+        var ar = [];
+        o.forEach(obj => ar.push(obj.name));
+        var set = new Set(ar);
+        console.log(set);
+        return set;
+    }
+
+    //заполнить массив без дубликатов дат (даты уже отсортированы по дате)
+    function fillDatesForLabels() {
+        var ar = [];
+        var val;
+        for (var i = 1; i < tbl.rows.length; i++) {
+            val = tbl.rows[i].cells[1].getElementsByTagName('label')[0].getElementsByTagName('input')[0].value;
+            if (i > 1 && ar[i - 1] !== val) {
+                ar.push(val);
+            }
+        }
+        ar.forEach(user => console.log(user));
+        return ar;
+    }
+
+    // //печать таблицы
+    // function fillArrayFromTable(hte) {    //t=[object HTMLTableElement]
+    //     var ar = [[]];
+    //     console.log("rows length: " + hte.rows.length);
+    //     console.log("column length: " + hte.rows[0].cells.length);
+    //
+    //     for (var i = 1; i < hte.rows.length; i++) {
+    //         var rw = hte.rows[i];
+    //         for (var j = 1; j < rw.cells.length; j++) {
+    //             console.log("cell[" + i + "][" +j + "]: " + hte.rows[i].cells[j].getElementsByTagName('label')[0].getElementsByTagName('input')[0].value);
+    //             ar[i][j] = hte.rows[i].cells[j].innerHTML;
+    //         }
+    //     }
+    //     return ar;
+    // }
+
+
+    var data = {
+        labels: labels,
+        datasets: [{
+            data: [10, 5, 15, 20],
+            hidden: false,
+            label: 'Газпром'
+        }, {
+            data: [5, 10, 17, 30],
+            hidden: false,
+            label: 'Сбербанк'
+        }]
+    };
+
+    var options = [];
+
+    var chart = new Chart(ctx, {
+        type: 'line',
+        data: data
+        //options: options
+    })
+</script>
+</body>
+</html>

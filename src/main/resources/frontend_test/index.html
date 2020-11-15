@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div style="width: 2000px; height: 2000px">
+    <div>
+        <h1>Котировки акций</h1>
+    </div>
+    <table>
+        <tr><th>ID</th><th>Дата</th><th>Имя</th><th>Стоимость</th></tr>
+        <tr><td>1</td><td>01.01.2019</td><td>Газпром</td><td>2000</td></tr>
+        <tr><td>2</td><td>01.01.2019</td><td>Автоваз</td><td>2500</td></tr>
+        <tr><td>3</td><td>05.01.2019</td><td>Сбербанк</td><td>10000</td></tr>
+        <tr><td>4</td><td>10.01.2019</td><td>Газпром</td><td>2500</td></tr>
+        <tr><td>5</td><td>07.10.2019</td><td>Автоваз</td><td>2100</td></tr>
+        <tr><td>6</td><td>10.10.2019</td><td>Газпром</td><td></td></tr>
+    </table>
+    <table id="tbl">
+        <tr><th>ID</th><th>Дата</th><th>Имя</th><th>Стоимость</th></tr>
+        <tr>
+            <td>1</td>
+            <td onchange="console.log('Placement Date'); ajaxFromOnlyOneCell(this)"><label><input type="date" value="2019-01-01"></label></td>
+            <td onchange="console.log('Name'); ajaxFromOnlyOneCell(this);"><label><input type="text" value="Газпром"></label></td>
+            <td onchange="console.log('Cost'); ajaxFromOnlyOneCell(this);"><label><input type="number" value="2000"></label></td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>01.01.2019</td>
+            <td>Автоваз</td>
+            <td>2500</td>
+        </tr>
+        <tr>
+            <td>3</td><td>05.01.2019</td><td>Сбербанк</td><td>10000</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>10.01.2019</td>
+            <td>Газпром</td>
+            <td>2500</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>07.10.2019</td>
+            <td>Автоваз</td>
+            <td>2100</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>10.10.2019</td>
+            <td>Газпром</td>
+            <td></td>
+        </tr>
+    </table>
+
+    <label><input type="button" value="Добавить" onclick="document.location.href='http://localhost:8080/instruments/form'"></label>
+    <label><input id="btn" type="button" value="Добавить (modal)"></label>
+
+    <canvas id="chart" width="400" height="400"></canvas>
+
+    <div id="prompt-form-container">
+        <form id="prompt-form">
+            <div id="prompt-message"></div>
+            <input name="placementDate" type="date" placeholder="Enter placement date">
+            <input name="name" type="text" placeholder="Enter name">
+            <input name="cost" type="number" placeholder="Enter cost">
+            <input type="submit" value="Submit">
+<!--            <input type="button" name="cancel" value="Отмена">-->
+        </form>
+    </div>
+
+</div>
+<script src="Chart.min.js"></script>
+<script src="modal.html"></script>
+<script>
+    'use strict';
+    var ctx = document.getElementById("chart");
+    var chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+            datasets: [{
+                label: 'Газпром',
+                data: [12, 19, 3, 5, 2, 3],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255,99,132,1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+
+    var tbl = document.getElementById("tbl");
+    //printTable(tbl);    //print table
+
+    //печать таблицы
+    function printTable(hte) {    //t=[object HTMLTableElement]
+        console.log("rows length: " + hte.rows.length);
+        console.log("column length: " + hte.rows[0].cells.length);
+
+        for (var i = 0; i < hte.rows.length; i++) {
+            var rw = hte.rows[i];
+            for (var j = 0; j < rw.cells.length; j++) {
+                console.log("cell[" + i + "][" +j + "]: " + hte.rows[i].cells[j].innerHTML);
+            }
+        }
+    }
+
+    //получить id, row, column из обработчика
+    function rc(hie) {
+        console.log("object: " + hie);     //[object HTMLInputElement]
+        console.log("cell value: " + hie.innerHTML);  //cell value
+        var col = hie.cellIndex;  //cell index = column
+        console.log('column: ' + col);
+        console.log('row all: ' + tbl.rows.length);
+        var row = getRow(hie, col);
+        console.log('row: ' + row);
+        var id = tbl.rows[row].cells[0].innerHTML;      //id
+        console.log("ID: " + id + " row: " + row + " col: " + col);
+        return [id, row, col];
+    }
+
+    //получить row из обработчика
+    function getRow(hie, col) {
+        for (var j = 0; j < tbl.rows.length; j++) {
+            var row = tbl.rows[j];
+            if (row.cells[col] === hie) return j;
+        }
+    }
+
+    //запрос и отправка ajax
+    function ajaxFromOnlyOneCell(hie) {     //[object HTMLInputElement]
+        var ar = rc(hie);   //id:row:col
+        var id = "id=" + ar[0];
+        var placement_date = "placement_date=";
+        var name = "name=";
+        var cost = "cost=";
+        var url = "http://localhost:8080/instruments/instr?";
+        var val = hie.getElementsByTagName('label')[0].getElementsByTagName('input')[0].value;
+        console.log("value: " + val);
+        switch (ar[2]) {    //by col
+            case 1:
+                placement_date += val;
+                break;
+            case 2:
+                name += val;
+                break;
+            case 3:
+                cost += val;
+                break;
+        }
+        url += id + "&" + placement_date + "&" + name + "&" + cost;
+        console.log("url: " + url);
+        ajax(url, "info");
+    }
+
+    //запрос ajax
+    function ajax(url, el) {
+        var req = ajaxRequest();
+        req.open("GET", url, true);
+        req.onreadystatechange = function () {
+            if (this.readyState === 4) {    //4=completed
+                if (this.status === 200) {      //200=OK
+                    if (this.responseText != null) {
+                        document.getElementById(el).innerHTML = this.responseText;
+                    } else {
+                        console.log("Error Ajax: Data no get!");
+                    }
+                } else {
+                    console.log("Error Ajax: " + this.statusText);
+                }
+            }
+        };
+        req.send(null);
+    }
+
+    function ajaxRequest() {
+        var req;
+        try {
+            req = new XMLHttpRequest();
+        } catch (e) {
+            try {
+                req = new ActiveXObject("Msxml2.XMLHTTP");  //IE6+
+            } catch (e) {
+                try {
+                    req = new ActiveXObject("Microsoft.XMLHTTP");   //IE 5
+                } catch (e) {
+                    req = null;
+                }
+            }
+        }
+        return req;
+    }
+
+
+
+    //////////////////////////////////////// modal /////////////////////////////////////////
+    // Показать полупрозрачный DIV, чтобы затенить страницу
+    // (форма располагается не внутри него, а рядом, потому что она не должна быть полупрозрачной)
+    function showCover() {
+        var coverDiv = document.createElement('div');
+        coverDiv.id = 'cover-div';
+
+        // убираем возможность прокрутки страницы во время показа модального окна с формой
+        document.body.style.overflowY = 'hidden';
+
+        document.body.append(coverDiv);
+    }
+
+    function hideCover() {
+        document.getElementById('cover-div').remove();
+        document.body.style.overflowY = '';
+    }
+
+    function showPrompt(text, callback) {
+        showCover();
+        var form = document.getElementById('prompt-form');
+        var container = document.getElementById('prompt-form-container');
+        document.getElementById('prompt-message').innerHTML = text;
+        form.placementDate.value = '';
+        form.name.value = '';
+        form.cost.value = '';
+
+        function complete(value) {
+            hideCover();
+            container.style.display = 'none';
+            document.onkeydown = null;
+            callback(value);
+        }
+
+        form.onsubmit = function () {
+            var value = form.text.value;
+            if (value === '') return false; // игнорируем отправку пустой формы
+
+            complete(value);
+            return false;
+        };
+
+        // form.cancel.onclick = function () {
+        //     complete(null);
+        // };
+
+        document.onkeydown = function (e) {
+            if (e.key === 'Escape') {
+                complete(null);
+            }
+        };
+
+        var lastElem = form.elements[form.elements.length - 1];
+        var firstElem = form.elements[0];
+
+        lastElem.onkeydown = function (e) {
+            if (e.key === 'Tab' && !e.shiftKey) {
+                firstElem.focus();
+                return false;
+            }
+        };
+
+        firstElem.onkeydown = function (e) {
+            if (e.key === 'Tab' && e.shiftKey) {
+                lastElem.focus();
+                return false;
+            }
+        };
+
+        container.style.display = 'block';
+        form.elements.text.focus();
+    }
+
+    document.getElementById('btn').onclick = function () {
+        showPrompt("Enter instrument:", function (value) {
+            //alert("Вы ввели: " + value);
+        });
+    };
+
+</script>
+</body>
+</html>

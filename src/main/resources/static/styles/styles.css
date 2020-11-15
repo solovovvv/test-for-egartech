@@ -1,0 +1,11 @@
+body {
+    background-color: cyan;
+}
+
+h1 {
+    color: blueviolet;
+}
+
+.validationError {
+    color: red;
+}

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/styles/styles.css}" />
+</head>
+<body>
+<form method="post" th:action="@{/instruments}" th:object="${instrument}">
+    <h1>Enter instrument!</h1>
+    <img src="" alt="bir1.png" th:src="@{/images/bir1.png}"/>
+
+    <div th:if="${#fields.hasErrors()}">
+        <span class="validationError">
+            Please correct the problems below and resubmit.
+        </span>
+    </div>
+    <br>
+    <label for="placementDate">Placement date: </label>
+    <input id="placementDate" type="date" th:field="*{placementDate}" placeholder="Enter placement date">
+    <span class="validationError" th:if="${#fields.hasErrors('placementDate')}" th:errors="*{placementDate}">Placement date is required</span>
+    <br>
+    <label for="name">Name: </label>
+    <input id="name" type="text" th:field="*{name}" placeholder="Enter name">
+    <span class="validationError" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Name is required</span>
+    <br>
+    <label for="cost">Cost: </label>
+    <input id="cost" type="number" th:field="*{cost}" placeholder="Enter cost">
+    <span class="validationError" th:if="${#fields.hasErrors('cost')}" th:errors="*{cost}">Invalid cost</span>
+    <br>
+
+    <input type="submit" value="Submit instrument"/>
+</form>
+
+</body>
+</html>
