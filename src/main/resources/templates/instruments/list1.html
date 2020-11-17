@@ -46,12 +46,16 @@
     </tr>
     <tr th:each="instrument : ${instruments}">
         <td th:text="${instrument.getId()}"></td>
-        <td onchange="ajaxFromOnlyOneCell(this)"><label><input name="id" type="date" th:value="${instrument.getPlacementDate()}"></label></td>
-        <td onchange="ajaxFromOnlyOneCell(this)"><label><input name="id" type="text" th:value="${instrument.getName()}"></label></td>
-        <td onchange="ajaxFromOnlyOneCell(this)"><label><input name="id" type="number" th:value="${instrument.getCost()}"></label></td>
+        <td onchange="ajaxFromOnlyOneCell(this); buildChart();"><label><input name="id" type="date" th:value="${instrument.getPlacementDate()}"></label></td>
+        <td onchange="ajaxFromOnlyOneCell(this); buildChart();"><label><input name="id" type="text" th:value="${instrument.getName()}"></label></td>
+        <td onchange="ajaxFromOnlyOneCell(this); buildChart();"><label><input name="id" type="number" th:value="${instrument.getCost()}"></label></td>
     </tr>
 </table>
-
+<div style="width: 600px; height: 400px">
+    <canvas id="chart"></canvas>
+</div>
+<script th:src="@{/js/Chart.min.js}" src="../../static/js/Chart.min.js"></script>
+<script th:src="@{/js/chart.js}" src="../../static/js/chart.js"></script>
 
 <script>
     'use strict';

@@ -1,0 +1,181 @@
+'use strict';
+var tbl = document.getElementById('tbl');
+var ctx = document.getElementById('chart');
+var tableData;// = [];   //данные с таблицы
+var labels;// = [];    //массив уникальных дат
+var namesSet;// = [];   //уникальные имена
+var chart = new Chart(ctx, null);
+buildChart();   //построить чарт/график
+
+//печать таблицы
+function printTable() {
+    console.log("Printing table:");
+    readTable().forEach(function (value, index) {
+        console.log(index + "\t" + value.placementDate + "\t" + value.name + "\t" + value.cost);
+    })
+}
+
+//прочитать таблицу и возвратить массив объектов (из строк)
+function readTable() {
+    var o = [{}];
+    for (var i = 1; i < tbl.rows.length; i++) {     //без заголовков
+        o[i - 1] = {
+            placementDate: tbl.rows[i].cells[1].getElementsByTagName('label')[0].getElementsByTagName('input')[0].value,
+            name: tbl.rows[i].cells[2].getElementsByTagName('label')[0].getElementsByTagName('input')[0].value,
+            cost: tbl.rows[i].cells[3].getElementsByTagName('label')[0].getElementsByTagName('input')[0].value
+        };
+    }
+    return o;
+}
+
+//получить уникальные имена
+function fillUniqNames() {
+    var names = [];
+    if (tableData === undefined) throw new Error("tableData is undefined!!!");
+    tableData.forEach(function (item) {
+        names.push(item.name);
+    });
+    var set = new Set(names);  //получаем уникальные значения
+    console.log(set);
+    return set;
+}
+
+//заполнить массив без дубликатов дат (даты уже отсортированы по дате)
+function fillUniqDatesForLabels() {
+    var ar = [];
+    var val;
+    for (var i = 1; i < tbl.rows.length; i++) {     //1-ю строку не берем в расчет, это заголовки
+        val = tbl.rows[i].cells[1].getElementsByTagName('label')[0].getElementsByTagName('input')[0].value;
+        if (i > 1) {
+            if (ar[ar.length - 1] !== val) {
+                ar.push(val);
+            }
+        } else {
+            ar.push(val);
+        }
+    }
+    console.log(ar);
+    return ar;
+}
+
+
+//создаем структуру типа:
+//var structure = [{
+//date: "2019-01-01",
+//    data: [{
+//        name: "Газпром",
+//        cost: 2000
+//    }, {
+//        date: "Автоваз",
+//        cost: 2500
+//    }]
+//}, {...
+function createStructure() {
+    tableData = readTable();    //считываем данные из таблицы
+    var o = [{}];
+
+    //создаем объекты и заполняем только дату
+    labels = fillUniqDatesForLabels();  //получаем уникальные даты для labels в чарте
+    labels.forEach(function (item) {
+        o.push({
+            date: item,
+            data: []    //здесь потом будет name и cost
+        });
+    });
+
+    o.shift();  //удаляем первый элемент массива (пустой)
+    //console.log(o);
+
+    for (var i = 0; i < tableData.length; i++) {
+        for (var j = 0; j < labels.length; j++) {
+            if (tableData[i].placementDate === o[j].date) {
+                var ar = {
+                    name: tableData[i].name,
+                    cost: tableData[i].cost
+                };
+                o[j].data.push(ar);
+            }
+        }
+    }
+    console.log(o);
+    return o;
+}
+
+//построить данные для чарта/графика типа:
+//datasets: [{
+//    data: [10, 5, 15, 20],    //массив стоимости
+//    hidden: false,
+//    label: 'Газпром'
+//}, {
+//    data: [5, 10, 17, 30],    //массив стоимости
+//    hidden: false,
+//    label: 'Сбербанк'
+//}]
+function createDataForChart() {
+    var structure = createStructure();
+    var o = [];
+    //подготавливаем datasets для чарта (данные стоимости иницилизированы 0)
+    namesSet = fillUniqNames();     //получаем уникальные имена
+    namesSet.forEach(function (item) {
+        var data = [];
+        for (var i = 0; i < labels.length; i++) {
+            data.push(0);
+        }
+        o.push({
+            data: data,
+            hidden: false,
+            label: item
+        })
+    });
+
+    for (var i = 0; i < structure.length; i++) {    //проходим по структуре с датами
+        for (var j = 0; j < structure[i].data.length; j++) {    //проходим по массиву объектов (name, cost) в структуре
+            for (var k = 0; k < o.length; k++) {    //проходим по результирующему массиву
+                if (structure[i].data[j].name === o[k].label) {     //если найдены имена
+                    o[k].data[i] = structure[i].data[j].cost;   //вставляем стоимость
+                }
+            }
+        }
+    }
+    //нормализуем данные в массиве
+    for (var i = 0; i < o.length; i++) {
+        o[i].data = addMissingData(o[i].data);
+    }
+    console.log(o);
+    return o;
+}
+
+//когда строятся данные (в данном случае стоимость), будут провалы (нулевые значения), необходимо недостающие
+// данные дополнить предыдущими значениями и тогда график будет без провалов
+function addMissingData(ar) {
+    if (ar.length === 0) return ar;
+    for (var i = 1; i < ar.length; i++) {   //первый элемент массива не берем в расчет
+        if (ar[i] === 0) {
+            ar[i] = ar[i - 1];
+        }
+    }
+    return ar;
+}
+
+//построить новый чарт/график
+function buildChart() {
+    var datasets = createDataForChart();    //строим данные для чарта/графика
+    console.log(datasets);
+    var data = {
+        labels: labels,     //ось абсцисса (x)
+        datasets: datasets  //данные
+    };
+
+    var options = [];
+
+
+    ctx = document.getElementById('chart');
+
+    //chart.clear();
+    chart.destroy();
+    chart = new Chart(ctx, {
+        type: 'line',   //тип график
+        data: data  //данные
+        //options: options
+    })
+}
