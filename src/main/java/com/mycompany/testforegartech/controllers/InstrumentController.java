@@ -37,6 +37,7 @@ public class InstrumentController {
         List<Instrument> instruments = instrumentService.findAll();
         model.addAttribute("instruments", instruments);
         logger.info("No. of instruments: " + instruments.size());
+        model.addAttribute("instrument", new Instrument());
         return "instruments/list1";
     }
 

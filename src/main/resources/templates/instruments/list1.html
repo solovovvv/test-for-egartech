@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel="stylesheet" th:href="@{/styles/styles.css}"/>
+    <link rel="stylesheet" th:href="@{/styles/style.css}"/>
 </head>
 <body>
 <h1>Welcome to Stock Exchange</h1>
@@ -35,7 +36,7 @@
 </table>
 
 <label><input type="button" value="Добавить" onclick="document.location.href='http://localhost:8080/instruments/form'"></label>
-<label><input type="button" value="Добавить (modal)" onclick="document.location.href='http://localhost:8080/instruments/form'"></label>
+<label><input id="btn" type="button" value="Добавить (modal)"></label>
 <div id="info"></div>
 <table id="tbl">
     <tr>
@@ -54,6 +55,29 @@
 <div style="width: 600px; height: 400px">
     <canvas id="chart"></canvas>
 </div>
+
+<div id="prompt-form-container">
+    <form id="prompt-form" method="post" th:action="@{/instruments}" th:object="${instrument}">
+        <h1>Enter instrument!</h1>
+
+        <div id="prompt-message"></div>
+
+        <label for="placementDate">Placement date: </label>
+        <input id="placementDate" type="date" th:field="*{placementDate}" placeholder="Enter placement date">
+        <br>
+        <label for="name">Name: </label>
+        <input id="name" type="text" th:field="*{name}" placeholder="Enter name">
+        <br>
+        <label for="cost">Name: </label>
+        <input id="cost" type="number" th:field="*{cost}" placeholder="Enter cost">
+        <br>
+        <input type="submit" value="Ok">
+
+        <input type="button" name="cancel" value="Отмена">
+    </form>
+</div>
+
+
 <script th:src="@{/js/Chart.min.js}" src="../../static/js/Chart.min.js"></script>
 <script th:src="@{/js/chart.js}" src="../../static/js/chart.js"></script>
 
@@ -161,6 +185,91 @@
         }
         return req;
     }
+
+
+
+    ///////////////////////////////////////modal window//////////////////////////////////////
+    // Показать полупрозрачный DIV, чтобы затенить страницу
+    // (форма располагается не внутри него, а рядом, потому что она не должна быть полупрозрачной)
+    function showCover() {
+        var coverDiv = document.createElement('div');
+        coverDiv.id = 'cover-div';
+
+        // убираем возможность прокрутки страницы во время показа модального окна с формой
+        document.body.style.overflowY = 'hidden';
+
+        document.body.append(coverDiv);
+    }
+
+    function hideCover() {
+        document.getElementById('cover-div').remove();
+        document.body.style.overflowY = '';
+    }
+
+    function showPrompt(text, callback) {
+        showCover();
+        var form = document.getElementById('prompt-form');
+        var container = document.getElementById('prompt-form-container');
+        document.getElementById('prompt-message').innerHTML = text;
+        form.placementDate.value = '';
+        form.name.value = '';
+        form.cost.value = '';
+
+        function complete(value) {
+            hideCover();
+            container.style.display = 'none';
+            document.onkeydown = null;
+            callback(value);
+        }
+
+        form.onsubmit = function () {
+            var placementDate = form.placementDate.value;
+            var name = form.name.value;
+            var cost = form.cost.value;
+            var value = "placementDate=" + placementDate + "&name=" +name + "&cost=" + cost;
+            if (value === '') return false; // игнорируем отправку пустой формы
+
+            complete(value);
+            return true;    //отправка данные из формы
+        };
+
+        form.cancel.onclick = function () {
+            complete('Cancel');
+        };
+
+        document.onkeydown = function (e) {
+            if (e.key === 'Escape') {
+                complete(null);
+            }
+        };
+
+        var lastElem = form.elements[form.elements.length - 1];
+        var firstElem = form.elements[0];
+
+        lastElem.onkeydown = function (e) {
+            if (e.key === 'Tab' && !e.shiftKey) {
+                firstElem.focus();
+                return false;
+            }
+        };
+
+        firstElem.onkeydown = function (e) {
+            if (e.key === 'Tab' && e.shiftKey) {
+                lastElem.focus();
+                return false;
+            }
+        };
+
+        container.style.display = 'block';
+        form.elements.placementDate.focus();
+    }
+
+    document.getElementById('btn').onclick = function () {
+        showPrompt("Enter value", function (value) {
+            console.log("You enter is: " + value);
+        });
+    };
+
 
 </script>
 

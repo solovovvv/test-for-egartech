@@ -9,14 +9,25 @@
 
 <h2>Кликните на кнопку ниже</h2>
 
-<input id="btn" type="button" value="Кликните, чтобы увидеть форму" id="show-button">
+<input id="btn" type="button" value="Кликните, чтобы увидеть форму">
 
 
 <div id="prompt-form-container">
     <form id="prompt-form">
         <div id="prompt-message"></div>
+        <label for="placementDate">Placement date: </label>
+        <input id="placementDate" type="date" placeholder="Enter Placement Date">
+
+        <label for="name">Name: </label>
+        <input id="name" type="text" placeholder="Enter name">
+
+        <label for="cost">Name: </label>
+        <input id="cost" type="number" placeholder="Enter cost">
+
         <input name="text" type="text">
+
         <input type="submit" value="Ok">
+
         <input type="button" name="cancel" value="Отмена">
     </form>
 </div>
@@ -44,7 +55,10 @@
         var form = document.getElementById('prompt-form');
         var container = document.getElementById('prompt-form-container');
         document.getElementById('prompt-message').innerHTML = text;
-        form.text.value = '';
+        //form.text.value = '';
+        form.placementDate.value = '';
+        form.name.value = '';
+        form.cost.value = '';
 
         function complete(value) {
             hideCover();
@@ -62,7 +76,7 @@
         };
 
         form.cancel.onclick = function () {
-            complete(null);
+            complete('Cancel');
         };
 
         document.onkeydown = function (e) {
